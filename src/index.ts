@@ -1,102 +1,64 @@
-/** Person */
-class Person {
-  // Types defined here of `this` (not needed)
-  name: string
-  age: number
+/**
+ * Backstory: We're going to have a major launch of a new feature tomorrow and the product team forgot to add metrics.
+ * So we need a last-minute solution to be able to know its popularity in realtime.
+ * Our CEO has pulled us in to tell us that we only need to be able to answer one question: "How many hits have we received in the last 5 minutes?"
+ *
+ *
+ * const handler() {
+ *   trackHit()
+ *
+ * }
+ *
+ */
 
-  // you must define the types of the arguments too
-  constructor(name: string, age: number) {
-    this.name = name
-    this.age = age
-  }
+const hits = new Map<number, number>()
 
-  greet(): string {
-    return `Hello, my name is ${this.name}`
-  }
-}
+export function trackHit() {
+  const nowInSeconds = Math.floor(Date.now() / 1000)
 
-/** Employee */
-class Employee {
-  public employeeId: number // accessible from anywhere
-  private salary: number // accessible only from inside the class
-  protected department: string // accessible from inside the class and subclasses
-
-  constructor(employeeId: number, salary: number, department: string) {
-    this.employeeId = employeeId
-    this.salary = salary
-    this.department = department
+  if (hits.has(nowInSeconds)) {
+    hits.set(nowInSeconds, (hits.get(nowInSeconds) as number) + 1)
+  } else {
+    hits.set(nowInSeconds, 1)
   }
 }
 
-/** Animal */
-class Animal {
-  constructor(public species: string, private age: number) {} // shorthand for defining properties
+export function getHitCountInLast5Minutes() {
+  // 1. Get the current time in seconds
+  const nowInSeconds = Math.floor(Date.now() / 1000)
 
-  getAnimalInfo(): string {
-    return `${this.species} is ${this.age} years old.`
-  }
-}
+  // 2. Get the time 5 minutes ago in seconds
+  const fiveMinutesAgoInSeconds = nowInSeconds - 5 * 60
 
-/** Circle */
-class Circle {
-  readonly pi: number = 3.14 // readonly properties must be initialized at their declaration or in the constructor.
-  constructor(public radius: number) {}
-}
+  // 3. Iterate over the hits map and sum up the hits that are within the last 5 minutes
+  let sum = 0
 
-/** Dog */
-class Dog extends Animal {
-  constructor(species: string, age: number, public breed: string) {
-    super(species, age) // TypeScript supports classical inheritance like other object-oriented languages.
-  }
-}
-
-/** Shape */
-abstract class Shape {
-  abstract getArea(): number // abstract methods must be implemented in the derived classes
-}
-
-class Rectangle extends Shape {
-  constructor(private width: number, private height: number) {
-    super()
+  for (const [timestamp, hitCount] of hits) {
+    if (timestamp >= fiveMinutesAgoInSeconds) {
+      sum += hitCount
+    }
   }
 
-  getArea(): number {
-    return this.width * this.height
-  }
+  cleanUp()
+
+  // 4. Return the sum
+  return sum
 }
 
-/** IShape */
-interface IShape {
-  // Interfaces are a way to define contracts within your code as well as contracts with code outside of your project.
-  getArea(): number
-}
+const cleanUp = () => {
+  // 1. Get the current time in seconds
+  const nowInSeconds = Math.floor(Date.now() / 1000)
 
-class SecondCircle implements IShape {
-  constructor(private radius: number) {}
+  // 2. Get the time 5 minutes ago in seconds
+  const fiveMinutesAgoInSeconds = nowInSeconds - 5 * 60
 
-  getArea(): number {
-    return Math.PI * this.radius * this.radius
-  }
-}
-
-/** Generics */
-class DataStorage<T> {
-  private data: T[] = []
-
-  addItem(item: T) {
-    this.data.push(item)
+  // 3. Iterate over the hits map and delete the hits that are older than 5 minutes
+  for (const [timestamp, hitCount] of hits) {
+    if (timestamp < fiveMinutesAgoInSeconds) {
+      hits.delete(timestamp)
+    }
   }
 
-  removeItem(item: T) {
-    this.data = this.data.filter((d) => d !== item)
-  }
-}
-
-/** Static */
-class MathUtil {
-  static pi: number = 3.14159 // These belong to the class itself, not to instances of the class.
-
-  static calculateCircumference(diameter: number): number {
-    return this.pi * diameter
-  }
+  // 4. Return the sum
+  return hits
 }
