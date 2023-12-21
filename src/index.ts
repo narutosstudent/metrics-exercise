@@ -23,51 +23,35 @@ function getFiveMinutesAgoInSeconds(seconds: number) {
 
 export function trackHit() {
   const nowInSeconds = getNowInSeconds()
-  cleanUp()
+  cleanUp() // Clean up before tracking a new hit
 
-  if (hits.has(nowInSeconds)) {
-    hits.set(nowInSeconds, (hits.get(nowInSeconds) as number) + 1)
-  } else {
-    hits.set(nowInSeconds, 1)
-  }
+  const currentCount = hits.get(nowInSeconds) ?? 0
+  hits.set(nowInSeconds, currentCount + 1)
 }
 
 export function getHitCountInLast5Minutes() {
-  // 1. Get the current time in seconds
-  const nowInSeconds = getNowInSeconds()
+  cleanUp() // Clean up before calculating the hit count
 
-  // 2. Get the time 5 minutes ago in seconds
+  const nowInSeconds = getNowInSeconds()
   const fiveMinutesAgoInSeconds = getFiveMinutesAgoInSeconds(nowInSeconds)
 
-  // 3. Iterate over the hits map and sum up the hits that are within the last 5 minutes
   let sum = 0
-
   for (const [timestamp, hitCount] of hits) {
     if (timestamp >= fiveMinutesAgoInSeconds) {
       sum += hitCount
     }
   }
 
-  cleanUp()
-
-  // 4. Return the sum
   return sum
 }
 
 const cleanUp = () => {
-  // 1. Get the current time in seconds
   const nowInSeconds = getNowInSeconds()
-
-  // 2. Get the time 5 minutes ago in seconds
   const fiveMinutesAgoInSeconds = getFiveMinutesAgoInSeconds(nowInSeconds)
 
-  // 3. Iterate over the hits map and delete the hits that are older than 5 minutes
-  for (const [timestamp, hitCount] of hits) {
+  for (const [timestamp, _] of hits) {
     if (timestamp < fiveMinutesAgoInSeconds) {
       hits.delete(timestamp)
     }
   }
-
-  // 4. Return the sum
-  return hits
 }
