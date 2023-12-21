@@ -13,8 +13,17 @@
 
 const hits = new Map<number, number>()
 
+function getNowInSeconds() {
+  return Math.floor(Date.now() / 1000)
+}
+
+function getFiveMinutesAgoInSeconds(seconds: number) {
+  return seconds - 5 * 60
+}
+
 export function trackHit() {
-  const nowInSeconds = Math.floor(Date.now() / 1000)
+  const nowInSeconds = getNowInSeconds()
+  cleanUp()
 
   if (hits.has(nowInSeconds)) {
     hits.set(nowInSeconds, (hits.get(nowInSeconds) as number) + 1)
@@ -25,10 +34,10 @@ export function trackHit() {
 
 export function getHitCountInLast5Minutes() {
   // 1. Get the current time in seconds
-  const nowInSeconds = Math.floor(Date.now() / 1000)
+  const nowInSeconds = getNowInSeconds()
 
   // 2. Get the time 5 minutes ago in seconds
-  const fiveMinutesAgoInSeconds = nowInSeconds - 5 * 60
+  const fiveMinutesAgoInSeconds = getFiveMinutesAgoInSeconds(nowInSeconds)
 
   // 3. Iterate over the hits map and sum up the hits that are within the last 5 minutes
   let sum = 0
@@ -47,10 +56,10 @@ export function getHitCountInLast5Minutes() {
 
 const cleanUp = () => {
   // 1. Get the current time in seconds
-  const nowInSeconds = Math.floor(Date.now() / 1000)
+  const nowInSeconds = getNowInSeconds()
 
   // 2. Get the time 5 minutes ago in seconds
-  const fiveMinutesAgoInSeconds = nowInSeconds - 5 * 60
+  const fiveMinutesAgoInSeconds = getFiveMinutesAgoInSeconds(nowInSeconds)
 
   // 3. Iterate over the hits map and delete the hits that are older than 5 minutes
   for (const [timestamp, hitCount] of hits) {
