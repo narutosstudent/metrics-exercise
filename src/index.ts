@@ -22,7 +22,7 @@ function getFiveMinutesAgoInSeconds(seconds: number) {
 }
 
 export function trackHit() {
-  const nowInSeconds = getNowInSeconds()
+  const nowInSeconds = getNowInSeconds() // We use seconds to avoid storing too many entries in the map, which would happen if we used milliseconds, because we would have a new entry every millisecond
   cleanUp() // Clean up before tracking a new hit
 
   const currentCount = hits.get(nowInSeconds) ?? 0

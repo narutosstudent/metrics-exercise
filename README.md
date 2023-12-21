@@ -14,8 +14,6 @@ Coding exercise.
 
 5. Is this a temporary solution for the launch, or should it be designed for long-term use?: Influences the choice between a quick, possibly less robust solution, and a more durable, maintainable one.
 
-Certainly, let's break down these calculations and use visual examples to clarify how they work:
-
 ## 1. `Math.floor(Date.now() / 1000)`
 
 - **What It Does**: `Date.now()` returns the current time in milliseconds since the Unix Epoch (January 1, 1970). Dividing this value by 1000 converts it into seconds. `Math.floor` then rounds this value down to the nearest whole number.
